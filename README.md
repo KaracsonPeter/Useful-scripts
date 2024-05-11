@@ -6,5 +6,9 @@ To use this repo, you must know some basics of python programming.
 
 
 ## What it contains:
- - Helpers to organize your family pictures
+ - Helpers to organize your family pictures in `organise_images`
    - `choose_best_images.py`: Open images in a folder, view all of them through 
+ - Create pictures from different movie files in `movie_ti_images`
+   - `mp4_to_pngs.py`
+   - `ungif.py`
+ - 
