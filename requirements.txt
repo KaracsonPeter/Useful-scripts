@@ -2,3 +2,4 @@
 tkinter
 pillow
 opencv-python
+imageio
