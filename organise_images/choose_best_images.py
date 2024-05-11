@@ -57,6 +57,8 @@ if __name__ == "__main__":
     # The following number shall exclude the first 'N' images (You might use it to pick up where you left off)
     exclude_first = 10
     # ^^^ CONFIGURE YOUR VARIABLES HERE ^^^
+    # USAGE: Hit left arrow to next image,
+    #        Hit right arrow to next image & to save it to other location
 
     image_files = get_image_files(directory)
     if len(image_files) > exclude_first:
