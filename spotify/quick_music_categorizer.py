@@ -31,19 +31,51 @@ def get_current_track(sp):
     return None
 
 
-def add_to_playlist(sp, playlist_name, track_id):
-    playlists = sp.current_user_playlists(limit=99)
-    playlist_id = None
-    for playlist in playlists['items']:
-        if playlist['name'] == playlist_name:
-            playlist_id = playlist['id']
-            break
+def get_last_10_songs_in_playlist(sp, playlist_id) -> list:
+    """
+    Get the last 10 songs from a playlist.
+    Returns a list of track IDs.
+    """
+    # Get the total number of tracks in the playlist
+    playlist_info = sp.playlist(playlist_id, fields='tracks.total')
+    total_tracks = playlist_info['tracks']['total']
 
-    if not playlist_id:
-        print(f'Could not find {playlist_name}')
+    # Calculate the offset to retrieve the last 10 tracks
+    if total_tracks < 10:
+        limit = total_tracks  # If less than 10 tracks, get all
+        offset = 0  # Start from the first track
     else:
-        sp.playlist_add_items(playlist_id=playlist_id, items=[track_id], position=None)
-        print(f"Added track to playlist: {playlist_name}")
+        limit = 10
+        offset = total_tracks - 10  # Start 10 tracks before the end
+
+    # Get the last 10 tracks
+    results = sp.playlist_tracks(playlist_id, fields='items.track.id', limit=limit, offset=offset)
+
+    # Extract track IDs
+    last_10_tracks = [item['track']['id'] for item in results['items']]
+
+    return last_10_tracks
+
+
+def add_to_playlist(sp, playlist_name, track_id):
+    playlists = sp.current_user_playlists(limit=50)
+    playlists = {playlist['name']: playlist['id'] for playlist in playlists['items']}
+
+    if playlist_name in playlists:
+        counter = 0
+        while True:
+            # verify if we could add track to playlist (search at the end)
+            if track_id in get_last_10_songs_in_playlist(sp, playlists[playlist_name]):
+                break
+            else:
+                if not counter:
+                    print(f"Try to add track to playlist: {playlist_name}: {playlists[playlist_name]}")
+                else:
+                    print(counter * f".")
+                sp.playlist_add_items(playlist_id=playlists[playlist_name], items=[track_id], position=None)
+                time.sleep(0.2)
+    else:
+        print(f'Could not find {playlist_name}')
 
 
 def handle_keypress(sp):
@@ -71,7 +103,7 @@ def handle_keypress(sp):
             if track_id:
                 add_to_playlist(sp, "_buffer", track_id)
                 # add_to_playlist(sp, "Gaming", track_id)
-                sp.current_user_saved_tracks_add([track_id])
+                # sp.current_user_saved_tracks_add([track_id])
                 time.sleep(1)
             else:
                 print('No available track!')
