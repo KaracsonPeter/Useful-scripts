@@ -1,15 +1,23 @@
 import yaml
 import keyboard
 import time
-import requests
 import logging
-logging.basicConfig(level=logging.DEBUG)
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 
+debugging = False
 sleep_seconds = 0.3
+
+if debugging:
+    logging.basicConfig(level=logging.DEBUG)
+
+
+def waiting():
+    if debugging:
+        print(f"Waiting for {sleep_seconds} seconds to prevent to many requests!")
+    time.sleep(sleep_seconds)
 
 
 # Step 1: Load credentials from the YAML file
@@ -17,11 +25,6 @@ def load_credentials():
     with open("credentials.yaml", "r") as file:
         credentials = yaml.safe_load(file)
     return credentials
-
-
-def waiting():
-    print(f"Waiting for {sleep_seconds} seconds to prevent to many requests!")
-    time.sleep(sleep_seconds)
 
 
 def validate_connection(sp, auth_manager):
