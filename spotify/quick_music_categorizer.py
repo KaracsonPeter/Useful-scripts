@@ -212,7 +212,7 @@ def handle_keypress(sp):
         elif keyboard.is_pressed('up'):
             sp.previous_track()
 
-        elif keyboard.is_pressed('x'):
+        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('x'):
             exit()
 
 
