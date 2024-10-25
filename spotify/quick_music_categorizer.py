@@ -1,3 +1,5 @@
+import datetime
+
 import yaml
 import keyboard
 import time
@@ -8,7 +10,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 
 debugging = False
-sleep_seconds = 0.3
+sleep_seconds = 0.15
 
 if debugging:
     logging.basicConfig(level=logging.DEBUG)
@@ -101,8 +103,7 @@ def setup_spotify():
 def get_current_track(sp):
     playback = sp.current_playback()
     if playback and playback['is_playing']:
-        track_id = playback['item']['id']
-        return track_id
+        return playback['item']
     return None
 
 
@@ -155,35 +156,27 @@ def add_to_playlist(sp, playlist_name, track_id):
 
 
 def handle_keypress(sp):
+    """
+    This function handles specified keyboard combinations
+    """
     while True:
         # Be careful putting here any request!
         # You can reach your request limit very quickly for 24 hours in an infinite loop...
         if keyboard.is_pressed('ctrl') and keyboard.is_pressed('n'):
-            track_id = get_current_track(sp)
-            if track_id:
-                add_to_playlist(sp, "_nope", track_id)
-            else:
-                print('No available track!')
-            waiting()
+            # Replace case with your own handling functionality if necessary:
+            playlist_name = "_nope"
+
+            add_curr_track_to_playlist(playlist_name, sp)
 
         elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('m'):
-            track_id = get_current_track(sp)
-            if track_id:
-                add_to_playlist(sp, "_maybe", track_id)
-            else:
-                print('No available track!')
-            waiting()
+            playlist_name = "_maybe"
+
+            add_curr_track_to_playlist(playlist_name, sp)
 
         elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('l'):
-            track_id = get_current_track(sp)
-            if track_id:
-                add_to_playlist(sp, "_buffer", track_id)
-                # add_to_playlist(sp, "Gaming", track_id)
-                # sp.current_user_saved_tracks_add([track_id])
-                waiting()
-            else:
-                print('No available track!')
-            waiting()
+            playlist_name = "_buffer"
+
+            add_curr_track_to_playlist(playlist_name, sp)
 
         elif keyboard.is_pressed('right'):
             playback_info = sp.current_playback()
@@ -214,6 +207,31 @@ def handle_keypress(sp):
 
         elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('x'):
             exit()
+
+
+def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
+    """
+    :param playlist_name: String representing the name of your playlist to which you want to add your currently played song.
+    :param sp: Spotify object. Instantiated at the start of the program.
+    :param glich_to_know_if_added: If this param is larger than zero, you'll have a glitch in the audio to verify if you could succesfully add the song to the playlist.
+    :return: None
+    """
+    track = get_current_track(sp)
+    if track['id']:
+        add_to_playlist(sp, playlist_name, track['id'])
+
+        with open(f'{playlist_name}.txt', 'a') as file:
+            file.write(f"{track['name']}: {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}\n")
+
+        if glich_to_know_if_added > 0:
+            playback_info = sp.current_playback()
+            current_position = playback_info['progress_ms']
+            new_position = current_position + glich_to_know_if_added  # Go forward 30 sec
+            sp.seek_track(new_position)
+
+    else:
+        print('No available track!')
+    waiting()
 
 
 # Step 5: Run the event loop
