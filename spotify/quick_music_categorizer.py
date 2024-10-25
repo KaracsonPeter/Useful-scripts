@@ -221,7 +221,8 @@ def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
         add_to_playlist(sp, playlist_name, track['id'])
 
         with open(f'{playlist_name}.txt', 'a') as file:
-            file.write(f"{track['name']}: {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}\n")
+            track_name = track['name'].encode("ascii", errors="replace").decode("ascii")
+            file.write(f"{track_name}: {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}\n")
 
         if glich_to_know_if_added > 0:
             playback_info = sp.current_playback()
