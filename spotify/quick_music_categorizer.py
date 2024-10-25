@@ -158,7 +158,7 @@ def handle_keypress(sp):
     while True:
         # Be careful putting here any request!
         # You can reach your request limit very quickly for 24 hours in an infinite loop...
-        if keyboard.is_pressed('n'):
+        if keyboard.is_pressed('ctrl') and keyboard.is_pressed('n'):
             track_id = get_current_track(sp)
             if track_id:
                 add_to_playlist(sp, "_nope", track_id)
@@ -166,7 +166,7 @@ def handle_keypress(sp):
                 print('No available track!')
             waiting()
 
-        elif keyboard.is_pressed('m'):
+        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('m'):
             track_id = get_current_track(sp)
             if track_id:
                 add_to_playlist(sp, "_maybe", track_id)
@@ -174,7 +174,7 @@ def handle_keypress(sp):
                 print('No available track!')
             waiting()
 
-        elif keyboard.is_pressed('l'):
+        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('l'):
             track_id = get_current_track(sp)
             if track_id:
                 add_to_playlist(sp, "_buffer", track_id)
