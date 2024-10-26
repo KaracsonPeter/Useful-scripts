@@ -1,9 +1,11 @@
 import datetime
-
+import os
 import yaml
 import keyboard
 import time
 import logging
+
+from collections import deque
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -34,7 +36,8 @@ def validate_connection(sp, auth_manager):
     try:
         sp.current_user()
         waiting()
-        print("Token is valid")
+        if debugging:
+            print("Token is valid")
     except:
         print("Token is invalid or has expired")
         return False
@@ -42,7 +45,8 @@ def validate_connection(sp, auth_manager):
     try:
         sp.me()  # Retrieves current user's profile
         waiting()
-        print("Connection and authentication are OK!")
+        if debugging:
+            print("Connection and authentication are OK!")
     except spotipy.exceptions.SpotifyException as e:
         print(f"Authentication or connection error: {e}")
         return False
@@ -50,7 +54,8 @@ def validate_connection(sp, auth_manager):
     token_info = auth_manager.get_cached_token()
     if token_info:
         access_token = token_info['access_token']
-        print(f"Access Token: {access_token[:6]}...")
+        if debugging:
+            print(f"Access Token: {access_token[:6]}...")
     else:
         print("Failed to retrieve access token")
         return False
@@ -58,11 +63,13 @@ def validate_connection(sp, auth_manager):
     if token_info:
         expires_at = token_info.get('expires_at', 0)
         if expires_at < time.time():
-            print("Token expired, refreshing...")
             new_token = sp.auth_manager.refresh_access_token(token_info['refresh_token'])
-            print("New token received:", new_token)
+            if debugging:
+                print("Token expired, refreshing...")
+                print("New token received:", new_token)
         else:
-            print("Token is still valid.")
+            if debugging:
+                print("Token is still valid.")
     else:
         print("No cached token found.")
 
@@ -78,7 +85,8 @@ def check_if_token_expired(sp):
         print("Token has expired, refreshing...")
         sp.auth_manager.refresh_access_token(token_info['refresh_token'])
     else:
-        print("Token is valid")
+        if debugging:
+            print("Token is valid")
 
 
 def setup_spotify():
@@ -145,10 +153,11 @@ def add_to_playlist(sp, playlist_name, track_id):
                 print(".")
                 break
             else:
-                if not counter:
-                    print(f"Try to add track to playlist: {playlist_name}: {playlists[playlist_name]}")
-                else:
-                    print(counter * f".")
+                if debugging:
+                    if not counter:
+                        print(f"Try to add track to playlist: {playlist_name}: {playlists[playlist_name]}")
+                    else:
+                        print(counter * f".")
                 sp.playlist_add_items(playlist_id=playlists[playlist_name], items=[track_id], position=None)
                 time.sleep(0.2)
     else:
@@ -209,6 +218,16 @@ def handle_keypress(sp):
             exit()
 
 
+# Stores the last 5 saved song
+saved_deque = deque([])
+
+
+def print_program_status():
+    header = "-30sec <-  -> +30sec; ^ prev song   ˇ next song; Alt + p: Start / Stop player\n"
+    print(header + '\n'.join(saved_deque))
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
 def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
     """
     :param playlist_name: String representing the name of your playlist to which you want to add your currently played song.
@@ -222,6 +241,12 @@ def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
 
         with open(f'{playlist_name}.txt', 'a') as file:
             track_name = track['name'].encode("ascii", errors="replace").decode("ascii")
+            saved_deque.append(track_name)
+            if not len(saved_deque) < 5:
+                saved_deque.popleft()
+
+            print_program_status()
+
             file.write(f"{track_name}: {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}\n")
 
         if glich_to_know_if_added > 0:
@@ -245,7 +270,7 @@ if __name__ == "__main__":
     if not devices['devices']:
         print("No active devices found. Please start playback on a device.")
     else:
-        print(f"Active device: {devices['devices'][0]['name']}")
+        if debugging:
+            print(f"Active device: {devices['devices'][0]['name']}")
         if sp:
-            print("Press 'N', 'M', 'L', or 'X' on the keyboard to interact with Spotify.")
             handle_keypress(sp)
