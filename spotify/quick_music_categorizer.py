@@ -7,12 +7,15 @@ import logging
 
 from collections import deque
 
+from pynput.keyboard import Key, Listener
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 
 debugging = False
 sleep_seconds = 0.15
+
 
 if debugging:
     logging.basicConfig(level=logging.DEBUG)
@@ -164,62 +167,88 @@ def add_to_playlist(sp, playlist_name, track_id):
         print(f'Could not find {playlist_name}')
 
 
-def handle_keypress(sp):
-    """
-    This function handles specified keyboard combinations
-    """
-    while True:
-        # Be careful putting here any request!
-        # You can reach your request limit very quickly for 24 hours in an infinite loop...
-        if keyboard.is_pressed('ctrl') and keyboard.is_pressed('n'):
-            # Replace case with your own handling functionality if necessary:
-            playlist_name = "_nope"
-
-            add_curr_track_to_playlist(playlist_name, sp)
-
-        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('m'):
-            playlist_name = "_maybe"
-
-            add_curr_track_to_playlist(playlist_name, sp)
-
-        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('l'):
-            playlist_name = "_buffer"
-
-            add_curr_track_to_playlist(playlist_name, sp)
-
-        elif keyboard.is_pressed('right'):
-            playback_info = sp.current_playback()
-            if playback_info and playback_info['is_playing']:
-                current_position = playback_info['progress_ms']
-                new_position = current_position + 30000  # Go forward 30 sec
-                sp.seek_track(new_position)
-
-        elif keyboard.is_pressed('left'):
-            playback_info = sp.current_playback()
-            if playback_info and playback_info['is_playing']:
-                current_position = playback_info['progress_ms']
-                new_position = max(0, current_position - 30000)  # Go back 30 sec
-                sp.seek_track(new_position)
-
-        elif keyboard.is_pressed('alt') and keyboard.is_pressed('p'):
-            playback_info = sp.current_playback()
-            if playback_info['is_playing']:
-                sp.pause_playback()
-            else:
-                sp.start_playback()
-
-        elif keyboard.is_pressed('down'):
-            sp.next_track()
-
-        elif keyboard.is_pressed('up'):
-            sp.previous_track()
-
-        elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('x'):
-            exit()
-
-
+# Stores keys currently held down
+pressed_keys = {}
 # Stores the last 5 saved song
 saved_deque = deque([])
+
+
+def handle_keys():
+    # Remove presses older than 50ms
+    valid_keys = set()
+    for key, time_ms in pressed_keys.items():
+        t = current_milli_time()
+        if t - time_ms < 200:
+            valid_keys.add(key)
+
+    # Handle pressed keys
+    if {'ctrl_l', '\x0c'}.issubset(valid_keys):
+        playlist_name = "_buffer"
+        add_curr_track_to_playlist(playlist_name, sp)
+
+    elif {'ctrl_l', '\r'}.issubset(valid_keys):
+        playlist_name = "_maybe"
+        add_curr_track_to_playlist(playlist_name, sp)
+
+    elif {'ctrl_l', '\x0e'}.issubset(valid_keys):
+        playlist_name = "_nope"
+        add_curr_track_to_playlist(playlist_name, sp)
+
+    elif {'right', }.issubset(valid_keys):
+        playback_info = sp.current_playback()
+        if playback_info and playback_info['is_playing']:
+            current_position = playback_info['progress_ms']
+            new_position = current_position + 30000  # Go forward 30 sec
+            sp.seek_track(new_position)
+
+    elif {'left', }.issubset(valid_keys):
+        playback_info = sp.current_playback()
+        if playback_info and playback_info['is_playing']:
+            current_position = playback_info['progress_ms']
+            new_position = max(0, current_position - 30000)  # Go back 30 sec
+            sp.seek_track(new_position)
+
+    elif {'down', }.issubset(valid_keys):
+        sp.next_track()
+
+    elif {'up', }.issubset(valid_keys):
+        sp.previous_track()
+
+    elif {'alt_l', 'p'}.issubset(valid_keys):
+        playback_info = sp.current_playback()
+        if playback_info['is_playing']:
+            sp.pause_playback()
+        else:
+            sp.start_playback()
+
+    elif {'esc'}.issubset(valid_keys):
+        exit()
+
+
+def on_press(key):
+    try:
+        val = key.name
+    except AttributeError:
+        val = key.char
+    pressed_keys[val] = current_milli_time()
+
+    if debugging:
+        print(f"{val} pressed")
+
+    handle_keys()
+
+
+def on_release(key):
+    try:
+        val = key.name
+    except AttributeError:
+        val = key.char
+    if debugging:
+        print(f"{val} released")
+
+
+def current_milli_time():
+    return round(time.time() * 1000)
 
 
 def print_program_status():
@@ -257,7 +286,7 @@ def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
 
     else:
         print('No available track!')
-    waiting()
+    # waiting()
 
 
 # Step 5: Run the event loop
@@ -273,4 +302,5 @@ if __name__ == "__main__":
         if debugging:
             print(f"Active device: {devices['devices'][0]['name']}")
         if sp:
-            handle_keypress(sp)
+            with Listener(on_press=on_press, on_release=on_release) as listener:
+                listener.join()
