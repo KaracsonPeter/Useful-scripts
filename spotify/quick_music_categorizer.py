@@ -221,7 +221,7 @@ def handle_keys():
         else:
             sp.start_playback()
 
-    elif {'esc'}.issubset(valid_keys):
+    elif {'alt_l', 'esc'}.issubset(valid_keys):
         exit()
 
 
