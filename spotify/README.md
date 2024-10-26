@@ -16,3 +16,5 @@ client_secret: "your app client secret"
 Install dependencies  
 Run the script  
 Have fun
+
+([Doc of spotipy functions](https://developer.spotify.com/documentation/web-api/concepts/scopes))
