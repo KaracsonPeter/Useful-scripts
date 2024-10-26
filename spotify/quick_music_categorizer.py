@@ -153,7 +153,6 @@ def add_to_playlist(sp, playlist_name, track_id):
         while True:
             # verify if we could add track to playlist (search at the end)
             if track_id in get_last_10_songs_in_playlist(sp, playlists[playlist_name]):
-                print(".")
                 break
             else:
                 if debugging:
@@ -252,9 +251,7 @@ def current_milli_time():
 
 
 def print_program_status():
-    header = "-30sec <-  -> +30sec; ^ prev song   ˇ next song; Alt + p: Start / Stop player\n"
-    print(header + '\n'.join(saved_deque))
-    os.system('cls' if os.name == 'nt' else 'clear')
+    print(saved_deque[-1])
 
 
 def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
@@ -302,5 +299,6 @@ if __name__ == "__main__":
         if debugging:
             print(f"Active device: {devices['devices'][0]['name']}")
         if sp:
+            print("-30sec <-  -> +30sec; ^ prev song   ˇ next song; Alt + p: Start / Stop player")
             with Listener(on_press=on_press, on_release=on_release) as listener:
                 listener.join()
