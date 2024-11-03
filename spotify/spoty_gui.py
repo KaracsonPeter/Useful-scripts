@@ -1,4 +1,5 @@
 # import tkinter module
+import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
 
@@ -94,27 +95,7 @@ e48.grid(row=row, column=7, sticky=W, pady=2)
 
 # 5th row: Specify forwarding of music --------------------------------------------------------
 row = 4
-l41 = Label(master, text="Play next music by pressing")
-l41.grid(row=row, column=0, sticky=W, pady=2)
-
-e44 = Entry(master)  # Key 1
-e44.grid(row=row, column=3, sticky=W, pady=2)
-
-l45 = Label(master, text="+")
-l45.grid(row=row, column=4, sticky=W, pady=2)
-
-e46 = Entry(master)  # Key 2
-e46.grid(row=row, column=5, sticky=W, pady=2)
-
-l47 = Label(master, text="+")
-l47.grid(row=row, column=6, sticky=W, pady=2)
-
-e48 = Entry(master)  # Key 3
-e48.grid(row=row, column=7, sticky=W, pady=2)
-
-# 6th row: Specify forwarding of music --------------------------------------------------------
-row = 5
-l51 = Label(master, text="Stop / Start music by pressing")
+l51 = Label(master, text="Play next music by pressing")
 l51.grid(row=row, column=0, sticky=W, pady=2)
 
 e54 = Entry(master)  # Key 1
@@ -132,16 +113,10 @@ l57.grid(row=row, column=6, sticky=W, pady=2)
 e58 = Entry(master)  # Key 3
 e58.grid(row=row, column=7, sticky=W, pady=2)
 
-# 7th row: Specify forwarding of music --------------------------------------------------------
-row = 6
-l61 = Label(master, text="Add current music to playlist named")
+# 6th row: Specify forwarding of music --------------------------------------------------------
+row = 5
+l61 = Label(master, text="Stop / Start music by pressing")
 l61.grid(row=row, column=0, sticky=W, pady=2)
-
-e62 = Entry(master)  # Playlist name
-e62.grid(row=row, column=1, sticky=W, pady=2)
-
-l63 = Label(master, text="by pressing")
-l63.grid(row=row, column=2, sticky=W, pady=2)
 
 e64 = Entry(master)  # Key 1
 e64.grid(row=row, column=3, sticky=W, pady=2)
@@ -158,8 +133,8 @@ l67.grid(row=row, column=6, sticky=W, pady=2)
 e68 = Entry(master)  # Key 3
 e68.grid(row=row, column=7, sticky=W, pady=2)
 
-# 8th row: Specify forwarding of music --------------------------------------------------------
-row = 7
+# 7th row: Specify forwarding of music --------------------------------------------------------
+row = 6
 l71 = Label(master, text="Add current music to playlist named")
 l71.grid(row=row, column=0, sticky=W, pady=2)
 
@@ -184,8 +159,8 @@ l77.grid(row=row, column=6, sticky=W, pady=2)
 e78 = Entry(master)  # Key 3
 e78.grid(row=row, column=7, sticky=W, pady=2)
 
-# 9th row: Specify forwarding of music --------------------------------------------------------
-row = 8
+# 8th row: Specify forwarding of music --------------------------------------------------------
+row = 7
 l81 = Label(master, text="Add current music to playlist named")
 l81.grid(row=row, column=0, sticky=W, pady=2)
 
@@ -210,10 +185,65 @@ l87.grid(row=row, column=6, sticky=W, pady=2)
 e88 = Entry(master)  # Key 3
 e88.grid(row=row, column=7, sticky=W, pady=2)
 
+# 9th row: Specify forwarding of music --------------------------------------------------------
+row = 8
+l91 = Label(master, text="Add current music to playlist named")
+l91.grid(row=row, column=0, sticky=W, pady=2)
+
+e92 = Entry(master)  # Playlist name
+e92.grid(row=row, column=1, sticky=W, pady=2)
+
+l93 = Label(master, text="by pressing")
+l93.grid(row=row, column=2, sticky=W, pady=2)
+
+e94 = Entry(master)  # Key 1
+e94.grid(row=row, column=3, sticky=W, pady=2)
+
+l95 = Label(master, text="+")
+l95.grid(row=row, column=4, sticky=W, pady=2)
+
+e96 = Entry(master)  # Key 2
+e96.grid(row=row, column=5, sticky=W, pady=2)
+
+l97 = Label(master, text="+")
+l97.grid(row=row, column=6, sticky=W, pady=2)
+
+e98 = Entry(master)  # Key 3
+e98.grid(row=row, column=7, sticky=W, pady=2)
+
+
 # 10th row: Modification lock --------------------------------------------------------
+all_entry = [
+    e22, e24, e26, e28,
+    e32, e34, e36, e38,
+    e44, e46, e48,
+    e54, e56, e58,
+    e64, e66, e68,
+    e72, e74, e76, e78,
+    e82, e84, e86, e88,
+    e92, e94, e96, e98,
+]
+
+
+def checkbox_callback():
+    if check_var.get() == 1:
+        for entry in all_entry:
+            entry.config(state="disabled")
+    else:
+        for entry in all_entry:
+            entry.config(state="enabled")
+
+
 row = 9
-c91 = Checkbutton(master, text="Enable Settings Modification")
+check_var = tk.IntVar()
+c91 = Checkbutton(
+    master,
+    text="Check this for edit; Uncheck for verifying edit",
+    variable=check_var,
+    command=checkbox_callback
+)
 c91.grid(row=row, column=0, sticky=W, columnspan=2)
+
 
 # infinite loop which can be terminated
 # by keyboard or mouse interrupt
