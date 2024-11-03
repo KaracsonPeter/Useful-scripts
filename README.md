@@ -8,6 +8,8 @@ Additional requirements:
  - pip install [requirements.txt](./requirements.txt)
 
 ## What it contains:
+ - GUI to handle Spotify and add music to playlist while e.g. playing:  
+![](spotify/gui_layout.png)
  - Helpers to organize your family pictures in `organise_images`
    - [`choose_best_images.py`](./organise_images/choose_best_images.py): Open images in a folder, view all of them through 
  - Create pictures from different movie files in `movie_ti_images`
