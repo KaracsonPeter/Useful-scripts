@@ -1,5 +1,7 @@
 import datetime
 import os
+import threading
+
 import yaml
 import keyboard
 import time
@@ -11,6 +13,8 @@ from pynput.keyboard import Key, Listener
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+
+from spoty_gui import *
 
 
 debugging = False
@@ -286,13 +290,7 @@ def add_curr_track_to_playlist(playlist_name, sp, glich_to_know_if_added=3000):
     # waiting()
 
 
-# Step 5: Run the event loop
-if __name__ == "__main__":
-    sp = setup_spotify()
-
-    devices = sp.devices()
-    waiting()
-
+def backend():
     if not devices['devices']:
         print("No active devices found. Please start playback on a device.")
     else:
@@ -302,3 +300,17 @@ if __name__ == "__main__":
             print("-30sec <-  -> +30sec; ^ prev song   ˇ next song; Alt + p: Start / Stop player")
             with Listener(on_press=on_press, on_release=on_release) as listener:
                 listener.join()
+
+
+# Step 5: Run the event loop
+if __name__ == "__main__":
+    sp = setup_spotify()
+
+    devices = sp.devices()
+    waiting()
+
+    listener_thread = threading.Thread(target=backend)
+    listener_thread.daemon = True
+    listener_thread.start()
+
+    master.mainloop()

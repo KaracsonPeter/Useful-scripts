@@ -263,8 +263,3 @@ c91 = Checkbutton(
     command=checkbox_callback
 )
 c91.grid(row=row, column=0, sticky=W, columnspan=2)
-
-
-# infinite loop which can be terminated
-# by keyboard or mouse interrupt
-mainloop()
