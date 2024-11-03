@@ -1,4 +1,6 @@
-# import tkinter module
+import pathlib
+
+import yaml
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -14,10 +16,10 @@ l14 = Label(master, text="Key 1")
 l14.grid(row=row, column=3, sticky=W, pady=2)
 
 l15 = Label(master, text="Key 2")
-l15.grid(row=row, column=4, sticky=W, pady=2)
+l15.grid(row=row, column=5, sticky=W, pady=2)
 
 l16 = Label(master, text="Key 3")
-l16.grid(row=row, column=5, sticky=W, pady=2)
+l16.grid(row=row, column=7, sticky=W, pady=2)
 
 # Second row: Specify forwarding of music --------------------------------------------------------
 row = 1
@@ -213,25 +215,43 @@ e98.grid(row=row, column=7, sticky=W, pady=2)
 
 
 # 10th row: Modification lock --------------------------------------------------------
-all_entry = [
-    e22, e24, e26, e28,
-    e32, e34, e36, e38,
-    e44, e46, e48,
-    e54, e56, e58,
-    e64, e66, e68,
-    e72, e74, e76, e78,
-    e82, e84, e86, e88,
-    e92, e94, e96, e98,
-]
+all_entry = {
+    "e22": e22, "e24": e24, "e26": e26, "e28": e28,
+    "e32": e32, "e34": e34, "e36": e36, "e38": e38,
+    "e44": e44, "e46": e46, "e48": e48,
+    "e54": e54, "e56": e56, "e58": e58,
+    "e64": e64, "e66": e66, "e68": e68,
+    "e72": e72, "e74": e74, "e76": e76, "e78": e78,
+    "e82": e82, "e84": e84, "e86": e86, "e88": e88,
+    "e92": e92, "e94": e94, "e96": e96, "e98": e98,
+}
+all_entry_request_dict = dict()
+if pathlib.Path('settings.yaml').is_file():
+    # Read settings
+    with open('settings.yaml', 'r') as f:
+        all_entry_request_dict = yaml.load(f, Loader=yaml.SafeLoader)
+
+    # Load settings
+    for entry_name, content in all_entry_request_dict.items():
+        eval(f"{entry_name}.insert(0, '{content}')")
+
+
+def get_var_name(var):
+    for name, value in locals().items():
+        if value is var:
+            return name
 
 
 def checkbox_callback():
     if check_var.get() == 1:
-        for entry in all_entry:
-            entry.config(state="disabled")
-    else:
-        for entry in all_entry:
+        for name, entry in all_entry.items():
             entry.config(state="enabled")
+    else:
+        for name, entry in all_entry.items():
+            entry.config(state="disabled")
+            all_entry_request_dict[name] = entry.get()
+        with open('settings.yaml', 'w') as outfile:
+            yaml.dump(all_entry_request_dict, outfile, default_flow_style=False)
 
 
 row = 9
