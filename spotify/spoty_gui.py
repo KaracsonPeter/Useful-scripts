@@ -256,10 +256,31 @@ def checkbox_callback():
 
 row = 9
 check_var = tk.IntVar()
-c91 = Checkbutton(
+c101 = Checkbutton(
     master,
     text="Check this for edit; Uncheck for verifying edit",
     variable=check_var,
     command=checkbox_callback
 )
-c91.grid(row=row, column=0, sticky=W, columnspan=2)
+c101.grid(row=row, column=0, sticky=W, columnspan=2)
+
+l103 = Label(master, text="Last pressed key combination")
+l103.grid(row=row, column=2, sticky=W, pady=2)
+
+e104 = Entry(master)  # Key 1
+e104.grid(row=row, column=3, sticky=W, pady=2)
+e104.config(state="disabled")
+
+e106 = Entry(master)  # Key 2
+e106.grid(row=row, column=5, sticky=W, pady=2)
+e106.config(state="disabled")
+
+e108 = Entry(master)  # Key 3
+e108.grid(row=row, column=7, sticky=W, pady=2)
+e108.config(state="disabled")
+
+
+def set_entry_text(entry, text):
+    entry.delete(0, END)
+    entry.insert(0, text)
+    return True

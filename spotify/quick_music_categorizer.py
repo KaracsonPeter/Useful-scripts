@@ -184,6 +184,18 @@ def handle_keys():
         if t - time_ms < 200:
             valid_keys.add(key)
 
+    e104.config(state="enabled")
+    e106.config(state="enabled")
+    e108.config(state="enabled")
+    set_entry_text(e104, list(valid_keys)[0])
+    if len(valid_keys) > 1:
+        set_entry_text(e106, list(valid_keys)[1])
+    if len(valid_keys) > 2:
+        set_entry_text(e108, list(valid_keys)[2])
+    e104.config(state="disabled")
+    e106.config(state="disabled")
+    e108.config(state="disabled")
+
     # Handle pressed keys
     if {'ctrl_l', '\x0c'}.issubset(valid_keys):
         playlist_name = "_buffer"
